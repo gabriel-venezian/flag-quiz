@@ -4,15 +4,15 @@ import android.graphics.Color
 import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_quiz_questions.*
 
-class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
-    private var mCurrentPosition:Int = 1
+class QuizQuestionsActivity : AppCompatActivity(), View.OnClickListener {
+    private var mCurrentPosition: Int = 1
     private var mQuestionsList: ArrayList<Question>? = null
     private var mSelectedOptionPosition: Int = 0
 
@@ -28,13 +28,20 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
         tv_option_two.setOnClickListener(this)
         tv_option_three.setOnClickListener(this)
         tv_option_four.setOnClickListener(this)
+
+        btn_submit.setOnClickListener(this)
     }
 
     private fun setQuestion() {
-        val currentPosition = 1
-        val question = mQuestionsList!![mCurrentPosition-1]
+        val question = mQuestionsList!![mCurrentPosition - 1]
 
         defaultOptionsView()
+
+        if (mCurrentPosition == mQuestionsList!!.size) {
+            btn_submit.text = "FINISH"
+        } else {
+            btn_submit.text = "SUBMIT"
+        }
 
         progress_bar.progress = mCurrentPosition
         tv_progress.text = "$mCurrentPosition" + "/" + progress_bar.max
@@ -46,6 +53,57 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
         tv_option_two.text = question.optionTwo
         tv_option_three.text = question.optionThree
         tv_option_four.text = question.optionFour
+    }
+
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.tv_option_one -> {
+                selectedOptionView(tv_option_one, selectedOptionNumber = 1)
+            }
+            R.id.tv_option_two -> {
+                selectedOptionView(tv_option_two, selectedOptionNumber = 2)
+            }
+            R.id.tv_option_three -> {
+                selectedOptionView(tv_option_three, selectedOptionNumber = 3)
+            }
+            R.id.tv_option_four -> {
+                selectedOptionView(tv_option_four, selectedOptionNumber = 4)
+            }
+            R.id.btn_submit -> {
+                if (mSelectedOptionPosition == 0) {
+                    mCurrentPosition++
+
+                    when {
+                        mCurrentPosition <= mQuestionsList!!.size -> {
+                            setQuestion()
+                        }
+                        else -> {
+                            Toast.makeText(
+                                this,
+                                "You have successfully completed the Quiz!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                } else {
+                    val question = mQuestionsList?.get(mCurrentPosition - 1)
+
+                    if (question!!.correctAnswer != mSelectedOptionPosition) {
+                        answerView(mSelectedOptionPosition, R.drawable.wrong_option_border_bg)
+                    }
+
+                    answerView(question.correctAnswer, R.drawable.correct_option_border_bg)
+
+                    if (mCurrentPosition == mQuestionsList!!.size) {
+                        btn_submit.text = "FINISH"
+                    } else {
+                        btn_submit.text = "NEXT QUESTION"
+                    }
+
+                    mSelectedOptionPosition = 0
+                }
+            }
+        }
     }
 
     private fun defaultOptionsView() {
@@ -63,19 +121,27 @@ class QuizQuestionsActivity : AppCompatActivity(), OnClickListener {
         }
     }
 
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.tv_option_one -> {
-                selectedOptionView(tv_option_one, selectedOptionNumber = 1)
+    private fun answerView(answer: Int, drawableView: Int) {
+        when (answer) {
+            1 -> {
+                tv_option_one.background = ContextCompat.getDrawable(this, drawableView)
+                tv_option_one.setTextColor(Color.parseColor("#363A43"))
+                tv_option_one.setTypeface(tv_option_one.typeface, Typeface.BOLD)
             }
-            R.id.tv_option_two -> {
-                selectedOptionView(tv_option_two, selectedOptionNumber = 1)
+            2 -> {
+                tv_option_two.background = ContextCompat.getDrawable(this, drawableView)
+                tv_option_two.setTextColor(Color.parseColor("#363A43"))
+                tv_option_two.setTypeface(tv_option_two.typeface, Typeface.BOLD)
             }
-            R.id.tv_option_three -> {
-                selectedOptionView(tv_option_three, selectedOptionNumber = 1)
+            3 -> {
+                tv_option_three.background = ContextCompat.getDrawable(this, drawableView)
+                tv_option_three.setTextColor(Color.parseColor("#363A43"))
+                tv_option_three.setTypeface(tv_option_three.typeface, Typeface.BOLD)
             }
-            R.id.tv_option_four -> {
-                selectedOptionView(tv_option_four, selectedOptionNumber = 1)
+            4 -> {
+                tv_option_four.background = ContextCompat.getDrawable(this, drawableView)
+                tv_option_four.setTextColor(Color.parseColor("#363A43"))
+                tv_option_four.setTypeface(tv_option_four.typeface, Typeface.BOLD)
             }
         }
     }
